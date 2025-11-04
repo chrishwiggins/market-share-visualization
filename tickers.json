@@ -1,0 +1,64 @@
+{
+  "technology": {
+    "current": [
+      "AAPL", "MSFT", "GOOGL", "GOOG", "META", "AMZN", "NVDA", "TSLA",
+      "IBM", "ORCL", "CSCO", "INTC", "AMD", "CRM", "ADBE", "QCOM", "TXN"
+    ],
+    "historical": [
+      "HPQ", "HPE", "XRX", "NOK"
+    ]
+  },
+  "finance": {
+    "current": [
+      "JPM", "BAC", "WFC", "GS", "MS", "C", "BRK-B", "BRK-A", "AXP",
+      "USB", "PNC", "TFC", "COF"
+    ]
+  },
+  "healthcare": {
+    "current": [
+      "JNJ", "UNH", "PFE", "ABBV", "MRK", "TMO", "ABT", "LLY", "AMGN",
+      "BMY", "GILD", "CVS", "CI", "HUM"
+    ]
+  },
+  "consumer": {
+    "current": [
+      "WMT", "PG", "KO", "PEP", "COST", "NKE", "MCD", "DIS", "HD",
+      "TGT", "LOW", "SBUX", "PM", "MO", "CL", "KMB", "GIS", "K"
+    ],
+    "historical": [
+      "M", "GPS", "BBY"
+    ]
+  },
+  "industrial_energy": {
+    "current": [
+      "XOM", "CVX", "GE", "BA", "CAT", "MMM", "HON", "RTX", "LMT",
+      "UPS", "FDX", "DE", "EMR", "ETN", "PH"
+    ],
+    "historical": [
+      "COP", "OXY", "HAL", "SLB", "X", "AA", "DD", "DOW"
+    ]
+  },
+  "automotive": {
+    "current_and_historical": [
+      "GM", "F", "STLA", "TM", "HMC"
+    ]
+  },
+  "telecom": {
+    "current": [
+      "T", "VZ", "TMUS", "CMCSA", "CHTR"
+    ],
+    "historical": [
+      "LUMN"
+    ]
+  },
+  "airlines": {
+    "current": [
+      "UAL", "DAL", "AAL", "LUV", "JBLU", "ALK"
+    ]
+  },
+  "other": {
+    "historical": [
+      "AIG", "BNI", "NSC", "UNP", "CSX"
+    ]
+  }
+}
