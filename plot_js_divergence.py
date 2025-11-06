@@ -3,8 +3,10 @@
 Calculate and plot Jensen-Shannon divergence between adjacent years.
 
 This measures how much the market share distribution changes from year to year.
-High divergence = major shifts in market composition
-Low divergence = stable market composition
+To ensure accuracy:
+1. Only compares companies that exist in BOTH adjacent years
+2. Normalizes distributions over consistent company sets
+3. Reports data quality metrics alongside divergence
 """
 
 import pandas as pd
@@ -23,7 +25,7 @@ import logging
 logging.getLogger('yfinance').setLevel(logging.CRITICAL)
 
 # Use same configuration as main script
-START_YEAR = 1962
+START_YEAR = 1985  # Start after AT&T breakup and when Yahoo Finance data improves
 END_YEAR = None
 TOP_N_COMPANIES = 10
 MIN_COMPANIES_PER_YEAR = 8
@@ -156,77 +158,124 @@ def calculate_js_divergence(pivot):
     """
     Calculate Jensen-Shannon divergence between adjacent years.
 
-    JS divergence is a symmetrized and smoothed version of KL divergence.
-    It measures how different two probability distributions are.
-
-    Range: 0 to 1
-    - 0 = identical distributions
-    - 1 = completely different distributions
+    Only includes companies present in BOTH years to avoid spurious changes
+    from data availability. Renormalizes distributions after filtering and
+    reports overlap percentage to identify data quality issues.
     """
-    print("\nCalculating Jensen-Shannon divergence between adjacent years...")
+    print("\nCalculating Jensen-Shannon divergence...")
+    print("(Only comparing companies present in both adjacent years)")
 
     years = sorted(pivot.index)
     js_divergences = []
     year_pairs = []
+    overlap_percentages = []
+    num_common_companies = []
 
     for i in range(len(years) - 1):
         year1 = years[i]
         year2 = years[i + 1]
 
-        # Get distributions for both years (as percentages)
-        dist1 = pivot.loc[year1].values / 100.0  # Convert to probabilities
-        dist2 = pivot.loc[year2].values / 100.0
+        # Get companies present in BOTH years (non-zero in both)
+        year1_companies = set(pivot.columns[pivot.loc[year1] > 0])
+        year2_companies = set(pivot.columns[pivot.loc[year2] > 0])
 
-        # Ensure distributions sum to 1 (they should, but just in case)
-        dist1 = dist1 / dist1.sum()
-        dist2 = dist2 / dist2.sum()
+        common_companies = year1_companies & year2_companies
 
-        # Calculate JS divergence
-        js_div = jensenshannon(dist1, dist2, base=2)  # base=2 gives bits
+        # Calculate overlap percentage
+        union_companies = year1_companies | year2_companies
+        overlap_pct = 100 * len(common_companies) / len(union_companies) if union_companies else 0
+
+        if len(common_companies) < 2:
+            # Not enough overlap to calculate meaningful divergence
+            js_div = np.nan
+            print(f"  {year1} -> {year2}: WARNING - Only {len(common_companies)} common companies")
+        else:
+            # Get distributions for common companies only
+            dist1 = pivot.loc[year1, list(common_companies)].values
+            dist2 = pivot.loc[year2, list(common_companies)].values
+
+            # Renormalize to sum to 100% (since we filtered companies)
+            dist1 = 100 * dist1 / dist1.sum()
+            dist2 = 100 * dist2 / dist2.sum()
+
+            # Convert to probabilities
+            dist1_prob = dist1 / 100.0
+            dist2_prob = dist2 / 100.0
+
+            # Calculate JS divergence
+            js_div = jensenshannon(dist1_prob, dist2_prob, base=2)
+
+            print(f"  {year1} -> {year2}: JS = {js_div:.4f}, " +
+                  f"{len(common_companies)} common companies, " +
+                  f"{overlap_pct:.1f}% overlap")
 
         js_divergences.append(js_div)
         year_pairs.append(f"{year1}-{year2}")
+        overlap_percentages.append(overlap_pct)
+        num_common_companies.append(len(common_companies))
 
-        print(f"  {year1} -> {year2}: JS divergence = {js_div:.4f}")
+    return years[1:], js_divergences, year_pairs, overlap_percentages, num_common_companies
 
-    return years[1:], js_divergences, year_pairs
-
-def plot_js_divergence(years, js_divergences, output_file='js_divergence.png'):
+def plot_js_divergence(years, js_divergences, overlap_percentages,
+                       output_file='js_divergence.png'):
     """
-    Create a line plot of JS divergence vs year.
+    Create two separate subplots:
+    - Top: JS divergence with 0-0.25 scale
+    - Bottom: Data overlap percentage (data quality indicator) with 0-100 scale
     """
     print(f"\nCreating JS divergence plot...")
 
-    fig, ax = plt.subplots(figsize=(16, 8))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 10), sharex=True)
 
-    # Plot JS divergence as line with markers
-    ax.plot(years, js_divergences, 'o-', linewidth=2, markersize=6, color='#2E86AB')
+    # Top plot: JS divergence
+    color = '#2E86AB'
+    ax1.plot(years, js_divergences, 'o-', linewidth=2, markersize=6,
+             color=color, label='JS Divergence')
 
-    # Highlight major changes (>0.3 is significant)
-    significant_threshold = 0.3
+    ax1.set_ylabel('Jensen-Shannon Divergence', fontsize=14, fontweight='bold')
+    ax1.set_ylim(0, 0.25)
+
+    # Highlight significant changes (>0.15 is significant)
+    significant_threshold = 0.15
     for year, js_div in zip(years, js_divergences):
-        if js_div > significant_threshold:
-            ax.axvline(x=year, color='red', alpha=0.3, linestyle='--', linewidth=1)
-            ax.text(year, js_div + 0.02, f'{year}\n{js_div:.3f}',
-                   ha='center', va='bottom', fontsize=9, fontweight='bold',
-                   color='red')
+        if not np.isnan(js_div) and js_div > significant_threshold:
+            ax1.axvline(x=year, color='red', alpha=0.2, linestyle='--', linewidth=1)
+            ax1.text(year, js_div + 0.005, f'{year}\n{js_div:.3f}',
+                    ha='center', va='bottom', fontsize=9, fontweight='bold',
+                    color='red')
 
     # Add horizontal line at threshold
-    ax.axhline(y=significant_threshold, color='red', alpha=0.2,
-              linestyle=':', linewidth=1, label=f'Significant change threshold ({significant_threshold})')
+    ax1.axhline(y=significant_threshold, color='red', alpha=0.3,
+               linestyle=':', linewidth=1, label=f'Significant threshold ({significant_threshold})')
 
-    # Labels and title
-    ax.set_xlabel('Year', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Jensen-Shannon Divergence', fontsize=14, fontweight='bold')
-    ax.set_title('Market Composition Changes Over Time\n' +
-                'Jensen-Shannon Divergence Between Adjacent Years',
-                fontsize=16, fontweight='bold', pad=20)
+    ax1.set_title('Market Composition Changes Over Time\n' +
+                  'Jensen-Shannon Divergence Between Adjacent Years\n' +
+                  'Only comparing companies present in both years',
+                  fontsize=16, fontweight='bold', pad=20)
 
-    # Grid
-    ax.grid(True, alpha=0.3, axis='both')
+    ax1.legend(loc='upper left', fontsize=10)
+    ax1.grid(True, alpha=0.3, axis='both')
 
-    # Legend
-    ax.legend(loc='upper left', fontsize=10)
+    # Bottom plot: Company overlap percentage
+    color2 = '#E63946'
+    ax2.plot(years, overlap_percentages, 's-', linewidth=2, markersize=5,
+             color=color2, label='Company Overlap %')
+
+    ax2.set_xlabel('Year', fontsize=14, fontweight='bold')
+    ax2.set_ylabel('Company Overlap %', fontsize=14, fontweight='bold')
+    ax2.set_ylim(0, 105)
+
+    # Add horizontal line at 70% threshold (data quality concern)
+    ax2.axhline(y=70, color='orange', alpha=0.3, linestyle='--',
+               linewidth=1, label='Low overlap threshold (70%)')
+
+    # Shade regions with very low overlap (<50%)
+    for i, (year, overlap) in enumerate(zip(years, overlap_percentages)):
+        if overlap < 50:
+            ax2.axvspan(year - 0.5, year + 0.5, alpha=0.2, color='red')
+
+    ax2.legend(loc='lower left', fontsize=10)
+    ax2.grid(True, alpha=0.3, axis='both')
 
     # Adjust layout
     plt.tight_layout()
@@ -280,20 +329,37 @@ def main():
 
     # Calculate JS divergence
     print("Step 6: Calculating Jensen-Shannon divergence...")
-    years, js_divergences, year_pairs = calculate_js_divergence(pivot)
+    years, js_divergences, year_pairs, overlap_pcts, num_common = \
+        calculate_js_divergence(pivot)
     print()
 
-    # Find top 5 biggest changes
+    # Find top 5 biggest changes (excluding NaN)
     print("\nTop 5 Biggest Market Composition Changes:")
     print("=" * 70)
-    sorted_changes = sorted(zip(year_pairs, js_divergences), key=lambda x: x[1], reverse=True)
-    for i, (year_pair, js_div) in enumerate(sorted_changes[:5], 1):
-        print(f"  {i}. {year_pair}: JS divergence = {js_div:.4f}")
+    valid_changes = [(yp, js, overlap) for yp, js, overlap in
+                     zip(year_pairs, js_divergences, overlap_pcts)
+                     if not np.isnan(js)]
+    sorted_changes = sorted(valid_changes, key=lambda x: x[1], reverse=True)
+    for i, (year_pair, js_div, overlap) in enumerate(sorted_changes[:5], 1):
+        print(f"  {i}. {year_pair}: JS = {js_div:.4f} ({overlap:.1f}% overlap)")
+    print()
+
+    # Identify years with low overlap (data quality issues)
+    print("Years with low company overlap (<70%):")
+    print("=" * 70)
+    low_overlap = [(yp, overlap, num) for yp, overlap, num in
+                   zip(year_pairs, overlap_pcts, num_common)
+                   if overlap < 70]
+    if low_overlap:
+        for year_pair, overlap, num in sorted(low_overlap, key=lambda x: x[1]):
+            print(f"  {year_pair}: {overlap:.1f}% overlap ({num} common companies)")
+    else:
+        print("  None - all years have good overlap!")
     print()
 
     # Create visualization
     print("Step 7: Creating visualization...")
-    fig = plot_js_divergence(years, js_divergences)
+    fig = plot_js_divergence(years, js_divergences, overlap_pcts)
 
     print()
     print("=" * 70)
