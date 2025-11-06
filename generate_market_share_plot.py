@@ -46,7 +46,7 @@ logging.getLogger('yfinance').setLevel(logging.CRITICAL)
 # =============================================================================
 
 # Year range for historical data
-START_YEAR = 1970
+START_YEAR = 1985  # Start after AT&T breakup and when Yahoo Finance data improves
 END_YEAR = None  # None = current year
 
 # Number of top companies to include per year
@@ -61,7 +61,7 @@ OUTPUT_PNG = 'market_share_stacked.png'
 
 # Minimum number of companies required per year to include that year in analysis
 # This filters out years with incomplete data
-MIN_COMPANIES_PER_YEAR = 10
+MIN_COMPANIES_PER_YEAR = 8
 
 # Figure dimensions in inches (width, height)
 FIGURE_WIDTH = 20

@@ -5,37 +5,56 @@
       "IBM", "ORCL", "CSCO", "INTC", "AMD", "CRM", "ADBE", "QCOM", "TXN"
     ],
     "historical": [
-      "HPQ", "HPE", "XRX", "NOK"
+      "HPQ", "HPE", "XRX", "NOK", "MOT", "TI", "GLW", "AMAT"
     ]
   },
   "finance": {
     "current": [
       "JPM", "BAC", "WFC", "GS", "MS", "C", "BRK-B", "BRK-A", "AXP",
-      "USB", "PNC", "TFC", "COF"
+      "USB", "PNC", "TFC", "COF", "BK", "STT", "SCHW"
+    ],
+    "historical": [
+      "AIG", "ALL", "PRU", "MET", "TRV", "HIG", "PFG", "LNC", "AFL",
+      "HBAN", "FITB", "RF", "CMA", "ZION", "KEY"
     ]
   },
   "healthcare": {
     "current": [
       "JNJ", "UNH", "PFE", "ABBV", "MRK", "TMO", "ABT", "LLY", "AMGN",
-      "BMY", "GILD", "CVS", "CI", "HUM"
+      "BMY", "GILD", "CVS", "CI", "HUM", "MDT", "ISRG", "SYK", "BSX",
+      "BDX", "BAX", "ZBH", "ALGN"
     ]
   },
   "consumer": {
     "current": [
       "WMT", "PG", "KO", "PEP", "COST", "NKE", "MCD", "DIS", "HD",
-      "TGT", "LOW", "SBUX", "PM", "MO", "CL", "KMB", "GIS", "K"
+      "TGT", "LOW", "SBUX", "PM", "MO", "CL", "KMB", "GIS", "K",
+      "CPB", "KR", "TJX", "ROST", "DG", "DLTR"
     ],
     "historical": [
-      "M", "GPS", "BBY"
+      "M", "GPS", "BBY", "S", "JCP", "TWX", "VIA", "VIAB", "SHLD", "Z"
+    ],
+    "historical_1970s_brands": [
+      "KODK", "EK", "PRD"
     ]
   },
   "industrial_energy": {
     "current": [
       "XOM", "CVX", "GE", "BA", "CAT", "MMM", "HON", "RTX", "LMT",
-      "UPS", "FDX", "DE", "EMR", "ETN", "PH"
+      "UPS", "FDX", "DE", "EMR", "ETN", "PH", "ADP", "PAYX"
     ],
     "historical": [
-      "COP", "OXY", "HAL", "SLB", "X", "AA", "DD", "DOW"
+      "COP", "OXY", "HAL", "SLB", "X", "AA", "DD", "DOW", "APC", "XTO",
+      "BHI", "NBR", "RIG", "DO", "NE", "BP", "TOT", "E", "PSX"
+    ],
+    "historical_oil_giants": [
+      "MOB", "TX", "AN", "ARC", "SHEL", "RDS.A", "RDS.B"
+    ]
+  },
+  "utilities": {
+    "current_and_historical": [
+      "NEE", "DUK", "SO", "D", "AEP", "EXC", "SRE", "PEG", "XEL", "ED",
+      "EIX", "WEC", "ES", "FE", "CMS", "AES", "NI", "LNT", "ETR"
     ]
   },
   "automotive": {
@@ -48,7 +67,10 @@
       "T", "VZ", "TMUS", "CMCSA", "CHTR"
     ],
     "historical": [
-      "LUMN"
+      "LUMN", "S", "WIN", "FTR", "CTL", "Q"
+    ],
+    "baby_bells_1984": [
+      "BLS", "BEL", "NYN", "PAC", "SBC", "AIT", "USW"
     ]
   },
   "airlines": {
@@ -56,9 +78,20 @@
       "UAL", "DAL", "AAL", "LUV", "JBLU", "ALK"
     ]
   },
-  "other": {
-    "historical": [
-      "AIG", "BNI", "NSC", "UNP", "CSX"
+  "conglomerates": {
+    "current_and_historical": [
+      "BRK-A", "BRK-B", "GE", "HON", "ITW", "IR", "ROK", "DOV", "PH"
+    ]
+  },
+  "chemicals_materials": {
+    "current_and_historical": [
+      "DD", "DOW", "LYB", "EMN", "APD", "ECL", "PPG", "SHW", "NUE", "FCX",
+      "NEM", "AA", "X", "SCCO"
+    ]
+  },
+  "transportation_infrastructure": {
+    "current_and_historical": [
+      "UNP", "NSC", "CSX", "KSU", "GD", "NOC", "TXT", "FLS", "ITT"
     ]
   }
 }
