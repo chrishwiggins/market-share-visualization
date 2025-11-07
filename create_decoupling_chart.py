@@ -48,66 +48,69 @@ except ImportError:
 fig, ax1 = plt.subplots(figsize=(14, 8))
 
 # Plot S&P 500 on left axis
-color1 = '#00ff00'
-ax1.set_xlabel('Year', fontsize=12, color='white')
-ax1.set_ylabel('S&P 500 (indexed to 100 in 2005)', fontsize=12, color=color1)
+color1 = '#00ff00'  # Bright green
+ax1.set_xlabel('Year', fontsize=14, color='white', fontweight='bold')
+ax1.set_ylabel('S&P 500 (indexed to 100 in 2005)', fontsize=14, color=color1, fontweight='bold')
 line1 = ax1.plot(sp500_normalized.index, sp500_normalized.values,
-                 color=color1, linewidth=2, label='S&P 500 (indexed)')
-ax1.tick_params(axis='y', labelcolor=color1)
-ax1.grid(True, alpha=0.2)
+                 color=color1, linewidth=3, label='S&P 500 (indexed)')
+ax1.tick_params(axis='y', labelcolor=color1, labelsize=12)
+ax1.tick_params(axis='x', labelcolor='white', labelsize=12)
+ax1.grid(True, alpha=0.3, color='white')
 
 # Create second y-axis for unemployment
 ax2 = ax1.twinx()
-color2 = '#ff6666'
-ax2.set_ylabel('Unemployment Rate (%)', fontsize=12, color=color2)
+color2 = '#ffffff'  # White for unemployment
+ax2.set_ylabel('Unemployment Rate (%)', fontsize=14, color=color2, fontweight='bold')
 line2 = ax2.plot(unemployment.index, unemployment['UNRATE'],
-                 color=color2, linewidth=2, label='Unemployment Rate', linestyle='--')
-ax2.tick_params(axis='y', labelcolor=color2)
+                 color=color2, linewidth=3, label='Unemployment Rate', linestyle='--', alpha=0.9)
+ax2.tick_params(axis='y', labelcolor=color2, labelsize=12)
 
 # Highlight key periods
 # 2008 Financial Crisis
 ax1.axvspan(datetime(2007, 12, 1), datetime(2009, 6, 1),
-            alpha=0.15, color='yellow', label='2008 Crisis')
+            alpha=0.2, color='yellow', label='2008 Crisis')
 
 # COVID-19 Pandemic
 ax1.axvspan(datetime(2020, 2, 1), datetime(2020, 12, 1),
-            alpha=0.15, color='red', label='COVID-19')
+            alpha=0.25, color='red', label='COVID-19')
 
 # Post-COVID "decoupling" period
 ax1.axvspan(datetime(2021, 1, 1), datetime.now(),
-            alpha=0.1, color='cyan', label='Post-COVID Period')
+            alpha=0.15, color='cyan', label='Post-COVID Period')
 
 # Title and legend
 plt.title('Decoupling of Stock Market and Unemployment\nS&P 500 vs. Unemployment Rate (2005-2025)',
-          fontsize=16, color='white', pad=20)
+          fontsize=18, color='white', pad=20, fontweight='bold')
 
 # Combine legends
 lines = line1 + line2
 labels = [l.get_label() for l in lines]
-ax1.legend(lines, labels, loc='upper left', fontsize=10)
+ax1.legend(lines, labels, loc='upper left', fontsize=12, framealpha=0.8, facecolor='#1a1a1a', edgecolor='white')
 
 # Add annotations for key observations
 ax1.annotate('2008: Markets crash,\nunemployment rises\n(coupled)',
              xy=(datetime(2009, 1, 1), 50),
              xytext=(datetime(2010, 1, 1), 70),
-             arrowprops=dict(arrowstyle='->', color='white', alpha=0.7),
-             fontsize=10, color='white', ha='left')
+             arrowprops=dict(arrowstyle='->', color='white', alpha=0.9, lw=2),
+             fontsize=11, color='white', ha='left', fontweight='bold',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='black', edgecolor='white', alpha=0.8))
 
 ax1.annotate('2020-2025: Markets recover rapidly,\nunemployment remains elevated\n(decoupled)',
              xy=(datetime(2022, 6, 1), 400),
              xytext=(datetime(2016, 1, 1), 450),
-             arrowprops=dict(arrowstyle='->', color='white', alpha=0.7),
-             fontsize=10, color='white', ha='left')
+             arrowprops=dict(arrowstyle='->', color='white', alpha=0.9, lw=2),
+             fontsize=11, color='white', ha='left', fontweight='bold',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='black', edgecolor='white', alpha=0.8))
 
 plt.tight_layout()
 
 # Save figure
-output_file = 'images/unemployment_market_decoupling.png'
+output_file = 'unemployment_market_decoupling.png'
 plt.savefig(output_file, dpi=300, bbox_inches='tight', facecolor='black')
 print(f"\nChart saved to: {output_file}")
 
 # Also save as SVG for presentations
-output_svg = 'images/unemployment_market_decoupling.svg'
+output_svg = 'unemployment_market_decoupling.svg'
 plt.savefig(output_svg, bbox_inches='tight', facecolor='black')
 print(f"SVG saved to: {output_svg}")
 
